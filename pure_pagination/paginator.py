@@ -10,17 +10,24 @@ PAGINATION_SETTINGS = getattr(settings, "PAGINATION_SETTINGS", {})
 PAGE_RANGE_DISPLAYED = PAGINATION_SETTINGS.get("PAGE_RANGE_DISPLAYED", 10)
 MARGIN_PAGES_DISPLAYED = PAGINATION_SETTINGS.get("MARGIN_PAGES_DISPLAYED", 2)
 
+
 class InvalidPage(Exception):
     pass
+
 
 class PageNotAnInteger(InvalidPage):
     pass
 
+
 class EmptyPage(InvalidPage):
     pass
 
+
 class Paginator(object):
-    def __init__(self, object_list, per_page, orphans=0, allow_empty_first_page=True, request=None):
+
+    def __init__(
+            self, object_list, per_page, orphans=0,
+            allow_empty_first_page=True, request=None):
         self.object_list = object_list
         self.per_page = per_page
         self.orphans = orphans
@@ -84,9 +91,11 @@ class Paginator(object):
         return range(1, self.num_pages + 1)
     page_range = property(_get_page_range)
 
-QuerySetPaginator = Paginator # For backwards-compatibility.
+QuerySetPaginator = Paginator  # For backwards-compatibility.
+
 
 class PageRepresentation(int):
+
     def __new__(cls, x, querystring):
         obj = int.__new__(cls, x)
         obj.querystring = querystring
@@ -113,17 +122,22 @@ def add_page_querystring(func):
 
     return wrapper
 
+
 class Page(object):
+
     def __init__(self, object_list, number, paginator):
         self.object_list = object_list
         self.paginator = paginator
         if paginator.request:
-            # Reason: I just want to perform this operation once, and not once per page
+            # Reason: I just want to perform this operation once, and not once
+            # per page
             self.base_queryset = self.paginator.request.GET.copy()
             self.base_queryset['page'] = 'page'
-            self.base_queryset = self.base_queryset.urlencode().replace('%', '%%').replace('page=page', 'page=%s')
+            self.base_queryset = self.base_queryset.urlencode().replace(
+                '%', '%%').replace('page=page', 'page=%s')
 
-        self.number = PageRepresentation(number, self._other_page_querystring(number))
+        self.number = PageRepresentation(
+            number, self._other_page_querystring(number))
 
     def __repr__(self):
         return '<Page %s of %s>' % (self.number, self.paginator.num_pages)
@@ -168,24 +182,25 @@ class Page(object):
     @add_page_querystring
     def pages(self):
         if self.paginator.num_pages <= PAGE_RANGE_DISPLAYED:
-            return range(1, self.paginator.num_pages+1)
+            return list(range(1, self.paginator.num_pages + 1))
         result = []
-        left_side = PAGE_RANGE_DISPLAYED/2
+        left_side = PAGE_RANGE_DISPLAYED // 2
         right_side = PAGE_RANGE_DISPLAYED - left_side
-        if self.number > self.paginator.num_pages - PAGE_RANGE_DISPLAYED/2:
+        if self.number > self.paginator.num_pages - PAGE_RANGE_DISPLAYED // 2:
             right_side = self.paginator.num_pages - self.number
             left_side = PAGE_RANGE_DISPLAYED - right_side
-        elif self.number < PAGE_RANGE_DISPLAYED/2:
+        elif self.number < PAGE_RANGE_DISPLAYED // 2:
             left_side = self.number
             right_side = PAGE_RANGE_DISPLAYED - left_side
-        for page in xrange(1, self.paginator.num_pages+1):
+        for page in range(1, self.paginator.num_pages + 1):
             if page <= MARGIN_PAGES_DISPLAYED:
                 result.append(page)
                 continue
             if page > self.paginator.num_pages - MARGIN_PAGES_DISPLAYED:
                 result.append(page)
                 continue
-            if (page >= self.number - left_side) and (page <= self.number + right_side):
+            if (page >= self.number - left_side) and \
+                    (page <= self.number + right_side):
                 result.append(page)
                 continue
             if result[-1]:
@@ -199,15 +214,17 @@ class Page(object):
         GET parameters present.
         """
         if self.paginator.request:
-            return self.base_queryset %page_number
+            return self.base_queryset % page_number
 
-        #raise Warning("You must supply Paginator() with the request object for a proper querystring.")
-        return 'page=%s' %page_number
+        # raise Warning("You must supply Paginator() with
+        # the request object for a proper querystring.")
+        return 'page=%s' % page_number
 
     def render(self):
         return render_to_string('pure_pagination/pagination.html', {
-            'current_page':self,
-            'page_obj':self, # Issue 9 https://github.com/jamespacileo/django-pure-pagination/issues/9
-                             # Use same naming conventions as Django
-            })
-
+            'current_page': self,
+            # Issue 9
+            # https://github.com/jamespacileo/django-pure-pagination/issues/9
+            'page_obj': self,
+            # Use same naming conventions as Django
+        })

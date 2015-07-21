@@ -5,17 +5,18 @@ django-pure-pagination
 Description
 ======================
 
-:Author:
+:Authors:
     James Pacileo `@ignighted <http://twitter.com/ignighted>`_
+    MTR Group `@mtr.website <http://mtr.website>`_
 
 :Version:
-    0.2.0
+    0.3.0
 
 :Description:
     django-pure-pagination provides advanced pagination features and is fully compatible with existing code based on Django's core pagination module. (aka no need to rewrite code!)
 
 :Requirements:
-    Django 1.2+
+    Django 1.2+, Python 3+
 
 :Special_Thanks:
     `juandecarrion (Juande Carrion) <https://github.com/juandecarrion>`_, `twidi (Stéphane Angel) <https://github.com/twidi>`_, `bebraw (Juho Vepsäläinen) <https://github.com/bebraw>`_
@@ -193,18 +194,18 @@ view file:
 * **views.py**
 
     ::
-    
+
         # views.py
         from django.views.generic import ListView
-        
+
         from pure_pagination.mixins import PaginationMixin
-        
+
         from my_app.models import MyModel
-    
-    
+
+
         class MyModelListView(PaginationMixin, ListView):
             # Important, this tells the ListView class we are paginating
-            paginate_by = 10 
+            paginate_by = 10
             # Replace it for your model or use the queryset attribute instead
             object = MyModel
 
@@ -215,7 +216,7 @@ Note that the Django generic-based list view will include the object **page_obj*
 * **_pagination.html**
 
     ::
-    
+
         {% load i18n %}
         <div class="pagination">
             {% if page_obj.has_previous %}
@@ -244,19 +245,19 @@ Note that the Django generic-based list view will include the object **page_obj*
 *  **my_app/myobject_list.html**
 
     ::
-    
+
         {# my_app/myobject_list.html #}
         {% extends 'base.html' %}
-    
+
         {% block content %}
-    
+
         {% for object in object_list %}
             <div>
                 First name: {{ object.first_name }}
             </div>
         {% endfor %}
-    
+
         {# The following renders the pagination html #}
         {% include "_pagination.html" %}
-    
-        {% endblock %}    
+
+        {% endblock %}
